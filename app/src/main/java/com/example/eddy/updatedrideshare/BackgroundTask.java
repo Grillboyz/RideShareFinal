@@ -136,8 +136,6 @@ public class BackgroundTask extends AsyncTask<String, String, String> {
     @Override
     protected void onPostExecute(String result) {
 
-        //TODO call method that will do something with these variables
-
         if(result.equals("Ride Posted"))
         {
             Toast.makeText(ctx, result, Toast.LENGTH_LONG).show();
