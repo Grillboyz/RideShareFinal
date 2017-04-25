@@ -150,6 +150,9 @@ public class BackgroundTask extends AsyncTask<String, String, String> {
             ListView listings = (ListView) ((Activity)ctx).findViewById(R.id.listingsList);
             RidePostingAdapter adapter = new RidePostingAdapter(ctx, rideListings);
             listings.setAdapter(adapter);
+
+            RideListings newListing = new RideListings();
+            newListing.setArray(rideListings);
         }
     }
 }

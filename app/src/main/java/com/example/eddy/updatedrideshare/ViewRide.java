@@ -2,6 +2,7 @@ package com.example.eddy.updatedrideshare;
 
 import android.Manifest;
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.support.v4.app.ActivityCompat;
@@ -33,38 +34,50 @@ public class ViewRide extends FragmentActivity implements OnMapReadyCallback, Di
 
     private GoogleMap mMap;
     private Button btnFindPath;
-    private EditText etOrigin;
-    private EditText etDestination;
+    private TextView etOrigin;
+    private TextView etDestination;
     private List<Marker> originMarkers = new ArrayList<>();
     private List<Marker> destinationMarkers = new ArrayList<>();
     private List<Polyline> polylinePaths = new ArrayList<>();
     private ProgressDialog progressDialog;
+
+    private static ArrayList<RidePosting> rideListings = new ArrayList<RidePosting>();
+    private int arrayPosition;
+    private RidePosting currentRide;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view_ride);
 
+        // Create instance for the ride arraylist
+        RideListings theListing = new RideListings();
+        rideListings = theListing.getArray();
+
+        // Get intent stuff
+        Intent intent = getIntent();
+        arrayPosition = intent.getExtras().getInt("position");
+        // Set the ride that will be used
+        currentRide = rideListings.get(arrayPosition);
+
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-        btnFindPath = (Button) findViewById(R.id.btnFindPath);
-        etOrigin = (EditText) findViewById(R.id.etOrigin);
-        etDestination = (EditText) findViewById(R.id.etDestination);
+        etOrigin = (TextView) findViewById(R.id.etOrigin);
+        etDestination = (TextView) findViewById(R.id.etDestination);
 
-        btnFindPath.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                sendRequest();
-            }
-        });
+        sendRequest();
     }
 
     private void sendRequest() {
-        String origin = etOrigin.getText().toString();
-        String destination = etDestination.getText().toString();
+        String origin = currentRide.getOrigin();
+        String destination = currentRide.getDestination();
+
+        etOrigin.setText("Origin: " + origin);
+        etDestination.setText("Destination: " + destination);
+        /*
         if (origin.isEmpty()) {
             Toast.makeText(this, "Please enter origin address!", Toast.LENGTH_SHORT).show();
             return;
@@ -73,7 +86,7 @@ public class ViewRide extends FragmentActivity implements OnMapReadyCallback, Di
             Toast.makeText(this, "Please enter destination address!", Toast.LENGTH_SHORT).show();
             return;
         }
-
+        */
         try {
             new DirectionFinder(this, origin, destination).execute();
         } catch (UnsupportedEncodingException e) {
@@ -135,7 +148,7 @@ public class ViewRide extends FragmentActivity implements OnMapReadyCallback, Di
         destinationMarkers = new ArrayList<>();
 
         for (Route route : routes) {
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(route.startLocation, 16));
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(route.startLocation, 12f));
             ((TextView) findViewById(R.id.tvDuration)).setText(route.duration.text);
             ((TextView) findViewById(R.id.tvDistance)).setText(route.distance.text);
 
